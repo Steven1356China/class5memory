@@ -1,12 +1,530 @@
-<!-- 管理员后台界面 -->
-<div class="admin-container">
-    <h2>用户管理</h2>
-    <form id="addUserForm">
-        <input type="text" id="newName" placeholder="姓名" required>
-        <input type="text" id="newStudentId" placeholder="学号" required>
-        <button type="submit">添加用户</button>
-    </form>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>班级记忆 - 管理后台</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* 管理员页面特定样式 */
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .admin-header h1 {
+            color: #4a6cf7;
+            font-size: 28px;
+        }
+        
+        .admin-actions {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .nav-btn {
+            padding: 10px 20px;
+            background: #4a6cf7;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .nav-btn:hover {
+            background: #3a5ce5;
+        }
+        
+        .admin-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+        
+        .add-user-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .add-user-section h2 {
+            color: #4a6cf7;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #4a6cf7;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #4a6cf7 0%, #6a11cb 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .user-list-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .section-header h2 {
+            color: #4a6cf7;
+            font-size: 22px;
+        }
+        
+        .refresh-btn {
+            background: #2ecc71;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        .refresh-btn:hover {
+            background: #27ae60;
+        }
+        
+        .user-list {
+            min-height: 200px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid #f5f5f5;
+            transition: background 0.3s;
+        }
+        
+        .user-item:hover {
+            background: #f9f9f9;
+        }
+        
+        .user-item:last-child {
+            border-bottom: none;
+        }
+        
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 16px;
+        }
+        
+        .user-id {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .user-meta {
+            display: flex;
+            gap: 10px;
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+        
+        .admin-badge {
+            background: #4a6cf7;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+        
+        .user-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .delete-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s;
+        }
+        
+        .delete-btn:hover {
+            background: #ff3742;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #888;
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #ddd;
+        }
+        
+        .empty-state p {
+            font-size: 16px;
+        }
+        
+        .status-message {
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+            display: none;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        @media (max-width: 768px) {
+            .admin-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .admin-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .user-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .user-actions {
+                align-self: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- 头部导航 -->
+        <div class="admin-header">
+            <h1>班级记忆 - 管理后台</h1>
+            <div class="admin-actions">
+                <a href="main.html" class="nav-btn">进入主站</a>
+                <a href="timeline.html" class="nav-btn">查看时间线</a>
+                <a href="index.html" class="nav-btn" onclick="logout()">退出登录</a>
+            </div>
+        </div>
+        
+        <!-- 状态消息 -->
+        <div id="statusMessage" class="status-message"></div>
+        
+        <!-- 主要内容区域 -->
+        <div class="admin-content">
+            <!-- 添加用户区域 -->
+            <div class="add-user-section">
+                <h2>添加新用户</h2>
+                <form id="addUserForm">
+                    <div class="form-group">
+                        <label for="newName">姓名 *</label>
+                        <input type="text" id="newName" class="form-control" placeholder="输入学生姓名" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="newStudentId">学号 *</label>
+                        <input type="text" id="newStudentId" class="form-control" placeholder="输入学号" required>
+                        <small style="color: #666; font-size: 12px; margin-top: 5px; display: block;">
+                            注：学号可以重复
+                        </small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="isAdmin">管理员权限</label>
+                        <select id="isAdmin" class="form-control">
+                            <option value="false">普通用户</option>
+                            <option value="true">管理员</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">添加用户</button>
+                </form>
+            </div>
+            
+            <!-- 用户列表区域 -->
+            <div class="user-list-section">
+                <div class="section-header">
+                    <h2>用户列表</h2>
+                    <button onclick="loadUserList()" class="refresh-btn">刷新列表</button>
+                </div>
+                
+                <div id="userList" class="user-list">
+                    <!-- 用户列表会动态加载到这里 -->
+                    <div class="empty-state">
+                        <div style="font-size: 48px; margin-bottom: 15px;">👥</div>
+                        <p>暂无用户，请先添加用户</p>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; text-align: center;">
+                    <small style="color: #888;">共 <span id="userCount">0</span> 个用户</small>
+                </div>
+            </div>
+        </div>
+    </div>
     
-    <h3>用户列表</h3>
-    <ul id="userList"></ul>
-</div>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    
+    <script>
+        // Firebase配置
+        const firebaseConfig = {
+            apiKey: "AIzaSyC3YQ3Q5Q2Q1Q0Q9Q8Q7Q6Q5Q4Q3Q2Q1Q0",
+            authDomain: "class5memory.firebaseapp.com",
+            databaseURL: "https://class5memory-default-rtdb.firebaseio.com",
+            projectId: "class5memory",
+            storageBucket: "class5memory.appspot.com",
+            appId: "1:1234567890:web:abcdef1234567890"
+        };
+        
+        // 初始化Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.database();
+        
+        // 显示状态消息
+        function showStatus(message, type = 'success') {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.textContent = message;
+            statusEl.className = `status-message status-${type}`;
+            statusEl.style.display = 'block';
+            
+            setTimeout(() => {
+                statusEl.style.display = 'none';
+            }, 3000);
+        }
+        
+        // 加载用户列表
+        async function loadUserList() {
+            try {
+                const userListEl = document.getElementById('userList');
+                const userCountEl = document.getElementById('userCount');
+                
+                // 显示加载中
+                userListEl.innerHTML = '<div style="text-align: center; padding: 40px;">加载中...</div>';
+                
+                const snapshot = await db.ref('users').once('value');
+                const users = snapshot.val();
+                
+                if (!users || Object.keys(users).length === 0) {
+                    userListEl.innerHTML = `
+                        <div class="empty-state">
+                            <div style="font-size: 48px; margin-bottom: 15px;">👥</div>
+                            <p>暂无用户，请先添加用户</p>
+                        </div>
+                    `;
+                    userCountEl.textContent = '0';
+                    return;
+                }
+                
+                // 生成用户列表HTML
+                let html = '';
+                let count = 0;
+                
+                Object.keys(users).forEach(key => {
+                    const user = users[key];
+                    count++;
+                    
+                    html += `
+                        <div class="user-item" data-user-id="${key}">
+                            <div class="user-info">
+                                <div class="user-name">${user.name || '未命名'}</div>
+                                <div class="user-id">学号: ${user.studentId || '无'}</div>
+                                <div class="user-meta">
+                                    ${user.isAdmin ? '<span class="admin-badge">管理员</span>' : ''}
+                                    <span>创建: ${user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '未知'}</span>
+                                    ${user.lastLogin ? `<span>最后登录: ${new Date(user.lastLogin).toLocaleDateString()}</span>` : ''}
+                                </div>
+                            </div>
+                            <div class="user-actions">
+                                <button onclick="deleteUser('${key}', '${user.name}')" class="delete-btn">删除</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                userListEl.innerHTML = html;
+                userCountEl.textContent = count;
+                
+            } catch (error) {
+                console.error('加载用户列表失败:', error);
+                showStatus('加载用户列表失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 添加用户
+        async function addUser(event) {
+            if (event) event.preventDefault();
+            
+            const name = document.getElementById('newName').value.trim();
+            const studentId = document.getElementById('newStudentId').value.trim();
+            const isAdmin = document.getElementById('isAdmin').value === 'true';
+            
+            if (!name) {
+                showStatus('请输入姓名', 'error');
+                return;
+            }
+            
+            if (!studentId) {
+                showStatus('请输入学号', 'error');
+                return;
+            }
+            
+            try {
+                // 添加用户到数据库
+                const newUser = {
+                    name: name,
+                    studentId: studentId,
+                    isAdmin: isAdmin,
+                    createdAt: new Date().toISOString(),
+                    lastLogin: null
+                };
+                
+                await db.ref('users').push(newUser);
+                
+                // 清空表单
+                document.getElementById('newName').value = '';
+                document.getElementById('newStudentId').value = '';
+                
+                // 显示成功消息
+                showStatus(`用户 "${name}" 添加成功！`);
+                
+                // 重新加载用户列表
+                await loadUserList();
+                
+            } catch (error) {
+                console.error('添加用户失败:', error);
+                showStatus('添加用户失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 删除用户
+        async function deleteUser(userId, userName) {
+            if (!confirm(`确定要删除用户 "${userName}" 吗？此操作不可撤销。`)) {
+                return;
+            }
+            
+            try {
+                await db.ref('users/' + userId).remove();
+                showStatus(`用户 "${userName}" 已删除`);
+                await loadUserList();
+            } catch (error) {
+                console.error('删除用户失败:', error);
+                showStatus('删除用户失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 退出登录
+        function logout() {
+            localStorage.removeItem('currentUser');
+        }
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', async function() {
+            // 检查登录状态
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            
+            if (!currentUser || !currentUser.isAdmin) {
+                alert('请先登录管理员账户');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // 绑定表单提交事件
+            document.getElementById('addUserForm').addEventListener('submit', addUser);
+            
+            // 加载用户列表
+            await loadUserList();
+            
+            // 设置实时监听
+            db.ref('users').on('value', () => {
+                loadUserList();
+            });
+        });
+    </script>
+</body>
+</html>
