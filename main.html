@@ -1,0 +1,16 @@
+<!-- 文件上传界面 -->
+<div class="upload-section">
+    <h2>上传记忆</h2>
+    <form id="uploadForm">
+        <input type="text" id="fileTitle" placeholder="文件标题" required>
+        <input type="date" id="fileDate" required>
+        <input type="file" id="fileInput" 
+               accept=".doc,.docx,.pdf,.png,.jpg,.gif" required>
+        <button type="submit">上传</button>
+    </form>
+</div>
+
+<div class="recent-uploads">
+    <h2>最近上传</h2>
+    <div id="fileList"></div>
+</div>
