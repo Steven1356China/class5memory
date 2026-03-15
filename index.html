@@ -18,5 +18,68 @@
     </div>
     <script src="js/firebase.js"></script>
     <script src="js/auth.js"></script>
+    <!-- 临时登录解决方案 -->
+<script>
+// 直接绑定登录功能
+document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.getElementById('loginForm');
+    const errorMsg = document.getElementById('errorMsg');
+    
+    if (loginForm) {
+        // 移除原有的事件监听器
+        loginForm.outerHTML = loginForm.outerHTML;
+        
+        // 重新绑定
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const name = document.getElementById('name').value.trim();
+            const studentId = document.getElementById('studentId').value.trim();
+            
+            console.log("登录尝试:", name, studentId);
+            
+            // 管理员账号
+            if (name === "宋昊屿" && studentId === "18") {
+                // 保存登录状态
+                localStorage.setItem('currentUser', JSON.stringify({
+                    name: "宋昊屿",
+                    studentId: "18",
+                    isAdmin: true,
+                    id: "admin-" + Date.now()
+                }));
+                
+                // 跳转到后台
+                window.location.href = 'admin.html';
+                return;
+            }
+            
+            // 如果是测试账号
+            if (name === "test" && studentId === "123") {
+                localStorage.setItem('currentUser', JSON.stringify({
+                    name: "测试用户",
+                    studentId: "123",
+                    isAdmin: false,
+                    id: "test-" + Date.now()
+                }));
+                window.location.href = 'main.html';
+                return;
+            }
+            
+            // 其他情况
+            if (errorMsg) {
+                errorMsg.textContent = '姓名或学号不正确';
+                errorMsg.style.color = 'red';
+            } else {
+                alert('姓名或学号不正确');
+            }
+        });
+        
+        console.log("登录表单已重新绑定");
+    } else {
+        console.error("找不到登录表单");
+    }
+});
+</script>
 </body>
 </html>
