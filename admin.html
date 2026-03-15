@@ -525,6 +525,149 @@
                 loadUserList();
             });
         });
+        <script>
+    // 调试代码 - 直接绑定事件
+    console.log("页面加载完成");
+    
+    // 检查元素是否存在
+    const form = document.getElementById('addUserForm');
+    const nameInput = document.getElementById('newName');
+    const idInput = document.getElementById('newStudentId');
+    
+    console.log("表单元素:", form);
+    console.log("姓名输入框:", nameInput);
+    console.log("学号输入框:", idInput);
+    
+    if (form) {
+        // 先移除已有的事件监听器
+        form.onsubmit = null;
+        
+        // 绑定新的提交事件
+        form.onsubmit = async function(e) {
+            e.preventDefault();
+            console.log("表单提交触发！");
+            
+            const name = nameInput ? nameInput.value.trim() : '';
+            const studentId = idInput ? idInput.value.trim() : '';
+            const isAdmin = document.getElementById('isAdmin') ? 
+                document.getElementById('isAdmin').value === 'true' : false;
+            
+            console.log("输入值:", { name, studentId, isAdmin });
+            
+            if (!name) {
+                alert("请输入姓名");
+                return false;
+            }
+            
+            if (!studentId) {
+                alert("请输入学号");
+                return false;
+            }
+            
+            try {
+                // 直接添加用户
+                const db = firebase.database();
+                const newUser = {
+                    name: name,
+                    studentId: studentId,
+                    isAdmin: isAdmin,
+                    createdAt: new Date().toISOString(),
+                    lastLogin: null
+                };
+                
+                console.log("准备添加到数据库:", newUser);
+                
+                const result = await db.ref('users').push(newUser);
+                console.log("添加成功，用户ID:", result.key);
+                
+                // 清空表单
+                if (nameInput) nameInput.value = '';
+                if (idInput) idInput.value = '';
+                
+                // 显示成功消息
+                alert(`用户 "${name}" 添加成功！`);
+                
+                // 刷新列表
+                if (typeof loadUserList === 'function') {
+                    await loadUserList();
+                } else {
+                    console.log("loadUserList 函数不存在");
+                }
+                
+            } catch (error) {
+                console.error("添加用户失败:", error);
+                alert("添加失败: " + error.message);
+            }
+            
+            return false;
+        };
+        
+        console.log("表单事件已绑定");
+    } else {
+        console.error("错误：找不到表单元素");
+    }
+    
+    // 也添加一个直接测试按钮
+    const testBtn = document.createElement('button');
+    testBtn.textContent = "测试添加用户";
+    testBtn.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #ff4757;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        z-index: 1000;
+    `;
+    testBtn.onclick = async function() {
+        console.log("测试按钮点击");
+        const testUser = {
+            name: "测试用户" + Date.now(),
+            studentId: "test" + Math.floor(Math.random() * 1000),
+            isAdmin: false,
+            createdAt: new Date().toISOString()
+        };
+        
+        try {
+            const db = firebase.database();
+            await db.ref('users').push(testUser);
+            alert("测试用户添加成功！");
+            if (typeof loadUserList === 'function') {
+                await loadUserList();
+            }
+        } catch (error) {
+            alert("测试失败: " + error.message);
+        }
+    };
+    
+    document.body.appendChild(testBtn);
+    
+    // 控制台测试函数
+    window.testAddUser = async function() {
+        const db = firebase.database();
+        const testData = {
+            name: "控制台测试",
+            studentId: "console" + Date.now(),
+            isAdmin: false,
+            createdAt: new Date().toISOString()
+        };
+        
+        try {
+            await db.ref('users').push(testData);
+            console.log("✅ 测试用户添加成功");
+            if (typeof loadUserList === 'function') {
+                await loadUserList();
+            }
+        } catch (error) {
+            console.error("❌ 添加失败:", error);
+        }
+    };
+    
+    console.log("输入 testAddUser() 在控制台测试");
+</script>
     </script>
 </body>
 </html>
